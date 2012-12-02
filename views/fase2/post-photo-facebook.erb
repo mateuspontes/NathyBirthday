@@ -1,0 +1,80 @@
+<h3>Post photo</h3>
+
+<video id="video" width="640" height="480" autoplay></video>
+
+<div id="pngHolder" style="display: none;"></div>
+<canvas id="canvas" width="640" height="480" style="display: none;"></canvas>
+
+<p>
+  <button id="snap">Gravar foto!</button>
+  <button id="snap-other" style="display: none;">Tirar outra foto!</button>
+  <button id="post-photo" style="display: none;">Postar no Facebook ;)</button>
+
+  <form action="/post-photo-facebook" enctype="multipart/form-data" method="POST" id="form-photo" style="display: none;">
+    <input type="hidden" name="fbphoto" id="fbphoto" value="" />
+  </form>
+</p>
+
+<script type="text/javascript">
+  window.addEventListener("DOMContentLoaded", function() {
+    var image;
+    var canvas = document.getElementById("canvas"),
+      context = canvas.getContext("2d"),
+      video = document.getElementById("video"),
+      videoObj = { "video": true },
+      errBack = function(error) {
+        console.log("Video capture error: ", error.code); 
+      };
+
+    if(navigator.getUserMedia) { // Standard
+      navigator.getUserMedia(videoObj, function(stream) {
+        video.src = stream;
+        video.play();
+      }, errBack);
+    } else if(navigator.webkitGetUserMedia) { // WebKit-prefixed
+      navigator.webkitGetUserMedia(videoObj, function(stream){
+        video.src = window.webkitURL.createObjectURL(stream);
+        video.play();
+      }, errBack);
+    }
+    // Trigger photo take
+    document.getElementById("snap").addEventListener("click", function() {
+      context.drawImage(video, 0, 0, 640, 480);
+      
+      image = convertCanvasToImage(canvas);
+      document.getElementById("pngHolder").appendChild(image);
+      //console.log($(image).attr('src').replace("data:image/jpeg;base64,", ""));
+
+      $("#video, #snap").hide();
+      $("#snap-other, #post-photo, #pngHolder").show();
+    });
+
+    $("#snap-other").click(function () {
+      $("#snap-other, #post-photo, #pngHolder").hide();
+      $("#video, #snap").show();
+      $("#pngHolder img").remove();
+    });
+
+    $("#post-photo").click(function () {
+      var data = $(image).attr('src').replace("data:image/jpeg;base64,", "");
+      $("#fbphoto").val(data);
+      $("#form-photo").submit();
+    });
+  }, false);
+
+  function convertCanvasToImage(canvas) {
+    var image = new Image();
+    image.src = canvas.toDataURL("image/jpeg");
+    return image;
+  }
+
+  function dataURItoBlob(dataURI) {
+    var binary = atob(dataURI.split(',')[1]);
+    var array = [];
+    for(var i = 0; i < binary.length; i++) {
+        array.push(binary.charCodeAt(i));
+    }
+    return new Blob([new Uint8Array(array)], {type: 'image/jpeg'});
+  }
+
+</script>
