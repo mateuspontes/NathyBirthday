@@ -1,0 +1,14 @@
+Game com facebook/twitter
+---
+
+---
+**Ideia original:** desenvolver um joguinho com vários níveis, mas ficou só no papel =P
+
+---
+
+**O que foi feito:**
+ 
+ - Autenticação com Facebook;
+ - Postar no Twitter/Facebook;
+ - Capturar foto da webcam;
+ - Upload da imagem na timeline do FB;
